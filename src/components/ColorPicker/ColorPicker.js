@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import './ColorPicker.css';
+import classNames from 'classnames'
 
 class ColorPicker extends Component {
 
@@ -12,13 +13,20 @@ class ColorPicker extends Component {
     }
 
     makeOptionClassName = (index) => {
-        const optionClasses = ['ColorPicker__option'];
 
-        if(index===this.state.activeOptionIdx) {
-            optionClasses.push('ColorPicker__option--active');
-        }
+        // //обычный способ:
+        // const optionClasses = ['ColorPicker__option'];
 
-        return optionClasses.join(' ');
+        // if(index===this.state.activeOptionIdx) {
+        //     optionClasses.push('ColorPicker__option--active');
+        // }
+
+        // return optionClasses.join(' ');
+
+        //способ через classnames:
+        return classNames('ColorPicker__option', {
+            'ColorPicker__option--active': index===this.state.activeOptionIdx
+        })
     }
 
     render() {

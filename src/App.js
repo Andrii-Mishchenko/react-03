@@ -2,10 +2,13 @@ import React, {Component} from 'react';
 import Counter from './components/Counter';
 import Dropdown from './components/Dropdown';
 import ColorPicker from './components/ColorPicker';
-import TodoList from './components/TodoList'
+import TodoList from './components/TodoList';
+import Form from './components/Form';
+import TodoEditor from './components/TodoEditor/TodoEditor';
+import Filter from './components/TodoList/Filter'
 
-// import TodoList from './components/TodoList';
 import initialTodos from './todos.json';
+import shortid from 'shortid'
 
 const colorPickerOptions = [
   { label: 'red', color: '#F44336' },
@@ -20,7 +23,23 @@ class App extends Component {
 
     state = {  
         todos: initialTodos,
+        filter: ''
+
     };
+
+
+    addTodo = text => {
+        console.log(text)
+        const todo = {
+            id: shortid.generate(),
+            text,
+            completed: false
+        }
+
+        this.setState(prevState => ({
+            todos: [todo, ...prevState.todos]
+        }))
+    }
 
     deleteTodo =(todoId) =>{
         this.setState(prevState => ({
@@ -28,19 +47,70 @@ class App extends Component {
         }))
     }
 
+    formSubmitHandler = data =>{
+        console.log(data);
+    }
+
+    toggleCompleted = todoId => {
+        console.log(todoId);
+
+        this.setState(prevState=> ({
+            todos: prevState.todos.map(todo => {
+                if (todo.id===todoId) {
+                    return {
+                        ...todo,
+                        completed: !todo.completed
+                    }
+                }
+
+                return todo;
+            })
+        }));
+    }
+
+    changeFilter = e => {
+        this.setState({filter: e.currentTarget.value})
+    }
+
+    getVisibleTodos =() =>{
+        const {filter, todos} = this.state;
+        const normalizedFilter= filter.toLowerCase();
+        return todos.filter(todo=>
+            todo.text.toLowerCase().includes(normalizedFilter));
+    }
+
+    calculateCompletedTodos = () =>{
+        const {todos} = this.state
+
+        return todos.reduce((acc, todo) => (todo.completed ? acc+1 : acc), 0);
+    }
+
 
     render() { 
-        const {todos} = this.state;
+        const {todos, filter} = this.state;
 
-        const completedTodos = todos.reduce((acc, todo) => (todo.completed ? acc+1 : acc), 0);
+        const completedTodos = this.calculateCompletedTodos();
+        
+        const visibleTodos = this.getVisibleTodos();
 
         return (    
             <>
                 <h1>Component`s state</h1>
+                
+                <Form onSubmit={this.formSubmitHandler}/>
                 <Counter initialValue={0}/>
                 <Dropdown />
                 <ColorPicker options = {colorPickerOptions}/>
-                <TodoList todos = {todos} onDeleteTodo={this.deleteTodo}/>    
+                
+                <TodoEditor onSubmit={this.addTodo}/>
+
+                <Filter value={filter} onChange={this.changeFilter}/>
+                
+                <TodoList 
+                    todos = {visibleTodos} 
+                    onDeleteTodo={this.deleteTodo}
+                    onToggleCompleted={this.toggleCompleted}
+                    />    
 
                 <div>
                     <p>Общее кол-во: {todos.length}</p>
