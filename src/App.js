@@ -85,6 +85,22 @@ class App extends Component {
         return todos.reduce((acc, todo) => (todo.completed ? acc+1 : acc), 0);
     }
 
+    componentDidUpdate(prevProps, prevState){
+        if(this.state.todos!==prevState.todos){
+            console.log("обновилось todos")
+            localStorage.setItem('todos', JSON.stringify(this.state.todos))
+        }
+    }
+
+    componentDidMount() {
+        const todos = localStorage.getItem('todos');
+        const parsedTodos = JSON.parse(todos);
+
+        if(parsedTodos){
+            this.setState({todos: parsedTodos})
+        }
+    }
+
 
     render() { 
         const {todos, filter} = this.state;
